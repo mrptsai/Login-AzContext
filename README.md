@@ -40,15 +40,15 @@ Function azure-bar { Login-AzureContext -Parentfolder "$env:APPDATA\Windows Azur
 To log on to 'foo', you simply execute azure-foo. If this is a first logon, I get the usual Azure logon dialog and the resulting context gets saved. The next time, the existing file is loaded and the context tested for validity. From that point on you can switch between accounts whenever you need.
 
 ## Notes <br>
-Version:				      0.01
-Author:					      Willem Kasdorp (original https://blogs.technet.microsoft.com/389thoughts/2018/02/11/logging-on-to-azure-for-your-everyday-job/)
-Modified:             Paul Towler
-Creation Date:		    29/10/2018 16:00
-Purpose/Change:			  Initial script development
-Required Modules:     Az
-Dependencies:			    PowerShell Core
-Limitations:          none
-Supported Platforms*: Windows, macOs
-                      *Currently not tested against other platforms
-Version History:      [29/10/2018 - 0.01 - Paul Towler]: Initial script. Add fixes as discussed here:
-                      https://www.bountysource.com/issues/62862211-your-azure-credentials-have-not-been-set-up-or-have-expired-please-run-connect-azurermaccount-to-set-up-your-azure-credentials
+Version:				        0.01 <br>
+Author:					        Willem Kasdorp (original https://blogs.technet.microsoft.com/389thoughts/2018/02/11/logging-on-to-azure-for-your-everyday-job/)<br>
+Modified:                       Paul Towler<br>
+Creation Date:		            29/10/2018 16:00<br>
+Purpose/Change:			        Initial script development<br>
+Required Modules:               Az<br>
+Dependencies:			        PowerShell Core<br>
+Limitations:                    none<br>
+Supported Platforms*:           Windows, macOs<br>
+                                *Currently not tested against other platforms<br>
+Version History:                [29/10/2018 - 0.01 - Paul Towler]: Initial script. Add fixes as discussed here:<br>
+                                https://www.bountysource.com/issues/62862211-your-azure-credentials-have-not-been-set-up-or-have-expired-please-run-connect-azurermaccount-to-set-up-your-azure-credentials
