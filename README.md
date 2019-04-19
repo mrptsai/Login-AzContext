@@ -4,7 +4,7 @@
 Save your Azure RM context with account and subscription information to a file
 
 ## Description <br>
-Sometimes life is about the little things, and one little thing that has been bothering me is logging on to Azure RM in Powershell using Add-AzureRMAccount. Every time you start Powershell, you need to log on again and that gets tired quickly, especially with accounts having mandatory 2FA.
+Sometimes life is about the little things, and one little thing that has been bothering me is logging on to Azure RM in Powershell using Add-AzAccount. Every time you start Powershell, you need to log on again and that gets tired quickly, especially with accounts having mandatory 2FA.
 
 It gets even more complicated if you have multiple accounts to manage, for instance, one for testing and another for production. To top it off, you can start over when it turns out that your context has expired, which you will only discover after you actually executed some AzureRM commands.
 
