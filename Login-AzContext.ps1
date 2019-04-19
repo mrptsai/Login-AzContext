@@ -13,9 +13,18 @@ begin
         )
 
         $validlogon = $false
-        $contextfile = Join-Path $parentfolder "$accountname.json"
+        $contextfile = Join-Path $parentfolder "$($accountname).json"
         $contextEmpty = Join-Path $parentfolder "empty.json"
-    
+        
+        Clear-Host
+        
+        # Create Parent Folder
+        if (-not (Test-Path $parentfolder))
+        {
+            New-Item -Path $parentfolder -ItemType Directory -Force | Out-Null       
+        }
+
+        # Create empty file
         if (-not (Test-Path $contextEmpty))
         {
             '{
@@ -23,12 +32,14 @@ begin
                 "EnvironmentTable": {},
                 "Contexts": {},
                 "ExtendedProperties": {}
-            }' | New-Item -Path $parentfolder -Name "empty.json"
+            }' | New-Item -Path $parentfolder -Name "empty.json" | Out-Null
         }
-    
+
+        # Checking Context File
         if (-not (Test-Path $contextfile))
         {
-            Write-Host "`r`n No existing Azure Context file in:`t$($parentfolder)`n Please log in to Az with account '$($accountname)'" -ForegroundColor Yellow
+            Write-Host "`r`n No existing Azure Context file in:`t$($parentfolder)" -ForegroundColor Yellow
+            Write-Host "`r`n Please log in to Az with account '$($accountname)'" -ForegroundColor Yellow
         } else
         {
             # Cleaning up Profiles
@@ -70,6 +81,10 @@ begin
             }
         }
     }
+    #endregion
+
+    #region Error Control
+    $ErrorAction = "SilentlyContinue"
     #endregion
 
     #region Variables
