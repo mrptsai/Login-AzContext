@@ -41,7 +41,7 @@ To log on to 'foo', you simply execute azure-foo. If this is a first logon, I ge
 
 ## Notes <br>
 |     |     |
-| --- | --- |
+| -------------------- | ------------------------------------------------------------------------------ |
 | Version: | 0.01 |
 | Author: | Willem Kasdorp (original https://blogs.technet.microsoft.com/389thoughts/2018/02/11/logging-on-to-azure-for-your-everyday-job/) |
 | Modified: | Paul Towler |
