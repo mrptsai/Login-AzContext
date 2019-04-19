@@ -40,6 +40,7 @@ Function azure-bar { Login-AzureContext -Parentfolder "$env:APPDATA\Windows Azur
 To log on to 'foo', you simply execute azure-foo. If this is a first logon, I get the usual Azure logon dialog and the resulting context gets saved. The next time, the existing file is loaded and the context tested for validity. From that point on you can switch between accounts whenever you need.
 
 ## Notes <br>
+|     |     |
 | --- | --- |
 | Version: | 0.01 |
 | Author: | Willem Kasdorp (original https://blogs.technet.microsoft.com/389thoughts/2018/02/11/logging-on-to-azure-for-your-everyday-job/) |
