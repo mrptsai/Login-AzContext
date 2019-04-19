@@ -40,6 +40,19 @@ Function azure-bar { Login-AzureContext -Parentfolder "$env:APPDATA\Windows Azur
 To log on to 'foo', you simply execute azure-foo. If this is a first logon, I get the usual Azure logon dialog and the resulting context gets saved. The next time, the existing file is loaded and the context tested for validity. From that point on you can switch between accounts whenever you need.
 
 ## Notes <br>
+<table>
+    <tr><td>Version:</td><td>0.01</td></tr>
+    <tr><td>Author:</td><td>Willem Kasdorp (original https://blogs.technet.microsoft.com/389thoughts/2018/02/11/logging-on-to-azure-for-your-everyday-job/)</td></tr>
+    <tr><td>Modified:</td><td>Paul Towler</td></tr>
+    <tr><td>Creation Date:</td><td>29/10/2018 16:00</td></tr>
+    <tr><td>Purpose/Change:</td><td>Initial script development</td></tr>
+    <tr><td>Required Modules:</td><td>Az</td></tr>
+    <tr><td>Dependencies:</td><td>PowerShell Core</td></tr>
+    <tr><td>Limitations:</td><td>None</td></tr>
+    <tr><td>Supported Platforms *</td><td>Windows, macOs <br> *Currently not tested against other platforms</td></tr>
+    <tr><td>Version History:</td><td>[29/10/2018 - 0.01 - Paul Towler]: Initial script. Add fixes as discussed here: <br> https://www.bountysource.com/issues/62862211-your-azure-credentials-have-not-been-set-up-or-have-expired-please-run-connect-azurermaccount-to-set-up-your-azure-credentials</td></tr>
+</table>
+
 |     |     |
 | -------------------- | ------------------------------------------------------------------------------ |
 | Version: | 0.01 |
