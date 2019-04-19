@@ -52,16 +52,3 @@ To log on to 'foo', you simply execute azure-foo. If this is a first logon, I ge
     <tr><td>Supported Platforms *</td><td>Windows, macOs <br> *Currently not tested against other platforms</td></tr>
     <tr><td>Version History:</td><td>[29/10/2018 - 0.01 - Paul Towler]: Initial script. Add fixes as discussed here: <br> https://www.bountysource.com/issues/62862211-your-azure-credentials-have-not-been-set-up-or-have-expired-please-run-connect-azurermaccount-to-set-up-your-azure-credentials</td></tr>
 </table>
-
-|     |     |
-| -------------------- | ------------------------------------------------------------------------------ |
-| Version: | 0.01 |
-| Author: | Willem Kasdorp (original https://blogs.technet.microsoft.com/389thoughts/2018/02/11/logging-on-to-azure-for-your-everyday-job/) |
-| Modified: | Paul Towler |
-| Creation Date: | 29/10/2018 16:00 |
-| Purpose/Change: | Initial script development |
-| Required Modules: | Az |
-| Dependencies: | PowerShell Core | 
-| Limitations: | none |
-| Supported Platforms*: | Windows, macOs <br> *Currently not tested against other platforms<br> |
-| Version History: | [29/10/2018 - 0.01 - Paul Towler]: Initial script. Add fixes as discussed here: <br> https://www.bountysource.com/issues/62862211-your-azure-credentials-have-not-been-set-up-or-have-expired-please-run-connect-azurermaccount-to-set-up-your-azure-credentials |
