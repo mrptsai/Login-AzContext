@@ -35,7 +35,7 @@ Suppose I have two Azure accounts that I want to use here, called 'personal' and
 #
     
 function azure-personal { Login-AzureContext -Parentfolder "$env:LOCALAPPDATA\Windows Azure PowerShell" -accountname "personal" }
-Function azure-work { Login-AzureContext -Parentfolder "$env:LOCALAPPDATA\Windows Azure PowerShell" -accountname "work" }
+function azure-work { Login-AzureContext -Parentfolder "$env:LOCALAPPDATA\Windows Azure PowerShell" -accountname "work" }
 ```
 To log on to 'personal', you simply execute azure-personal. If this is a first logon, I get the usual Azure logon dialog and the resulting context gets saved. The next time, the existing file is loaded and the context tested for validity. From that point on you can switch between accounts whenever you need.
 
