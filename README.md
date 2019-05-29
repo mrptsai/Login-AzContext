@@ -41,7 +41,7 @@ To log on to 'foo', you simply execute azure-foo. If this is a first logon, I ge
 
 ## Notes <br>
 <table>
-    <tr><td>Version:</td><td>0.01</td></tr>
+    <tr><td>Version:</td><td>1.0.0</td></tr>
     <tr><td>Author:</td><td>Willem Kasdorp (original https://blogs.technet.microsoft.com/389thoughts/2018/02/11/logging-on-to-azure-for-your-everyday-job/)</td></tr>
     <tr><td>Modified:</td><td>Paul Towler</td></tr>
     <tr><td>Creation Date:</td><td>29/10/2018 16:00</td></tr>
@@ -50,5 +50,19 @@ To log on to 'foo', you simply execute azure-foo. If this is a first logon, I ge
     <tr><td>Dependencies:</td><td>PowerShell Core</td></tr>
     <tr><td>Limitations:</td><td>None</td></tr>
     <tr><td>Supported Platforms *</td><td>Windows, macOs <br> *Currently not tested against other platforms</td></tr>
-    <tr><td>Version History:</td><td>[29/10/2018 - 0.01 - Paul Towler]: Initial script. Add fixes as discussed here: <br> https://www.bountysource.com/issues/62862211-your-azure-credentials-have-not-been-set-up-or-have-expired-please-run-connect-azurermaccount-to-set-up-your-azure-credentials</td></tr>
+    <tr>
+        <td>Version History:</td>
+        <td>[29/10/2018 - 0.01 - Paul Towler]: Initial script. Add fixes as discussed here: <br> https://www.bountysource.com/issues/62862211-your-azure-credentials-have-not-been-set-up-or-have-expired-please-run-connect-azurermaccount-to-set-up-your-azure-credentials
+        </td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td><td>[21/02/2019 - 0.02 - Paul Towler]: Added Check for PowerShell Core</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td><td>[21/02/2019 - 1.0.0 - Paul Towler]: Full Release
+            - Updated PowerShell Core to enable AzureRm Alias
+            - New function to get Access Token from:
+              https://www.codeisahighway.com/how-to-easily-and-silently-obtain-accesstoken-bearer-from-an-existing-azure-powershell-session/
+        </td>
+    </tr>
 </table>
