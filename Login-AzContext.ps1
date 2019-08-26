@@ -88,7 +88,13 @@ function Login-AzureContext
         [string] $AccountName,
 
         [Parameter(Mandatory=$true)]
-        [int] $Version
+        [int] $Version,
+
+        [Parameter(Mandatory=$false)]
+        [string] $TenantId,
+
+        [Parameter(Mandatory=$false)]
+        [string] $Subscription
     )
 
     $validlogon = $false
@@ -151,7 +157,16 @@ function Login-AzureContext
     if (-not $validlogon)
     {
         $account = $null
-        $account = Add-AzureRmAccount
+
+        if (!$TenantId -and !$Subscription)
+        { $account = Add-AzureRmAccount }
+
+        if ($TenantId -and !$Subscription)
+        { $account = Add-AzureRmAccount -TenantId $TenantId }
+        
+        if ($TenantId -and $Subscription)
+        { $account = Add-AzureRmAccount -TenantId $TenantId -Subscription $Subscription }
+ 
         if ($account) 
         {
             Save-AzureRmContext -Path $contextfile -Force
@@ -198,8 +213,18 @@ $Version = $psversiontable.PSVersion.Major
 #region Azure Logons
 try
 {
-	function azure-work { Login-AzureContext -ParentFolder "$env:APPDATA\Windows Azure PowerShell" -AccountName "work" -Version $Version }
-	function azure-personal { Login-AzureContext -ParentFolder "$env:APPDATA\Windows Azure PowerShell" -AccountName "personal" -Version $Version }
+	Import-Module Posh-git
+    #region Azure Logons
+    function azure-work { Login-AzureContext -ParentFolder "$env:HOME/PowerShell" -AccountName "work" -TenantId "8dbf3853-c31f-400d-b3fb-b54168b2603f" -Version $Version }
+    function azure-personal { Login-AzureContext -ParentFolder "$env:HOME/PowerShell" -AccountName "personal" -TenantId "83f07b4e-0a3e-482e-85de-034d549e3a92" -Version $Version}
+    #endregion
 } catch
 { $_ }
 #endregion
+
+#Begin Azure PowerShell alias import
+Import-Module Az.Accounts -ErrorAction SilentlyContinue -ErrorVariable importError
+if ($importerror.Count -eq 0) { 
+    Enable-AzureRmAlias -Module Az.Accounts, Az.Aks, Az.AnalysisServices, Az.ApiManagement, Az.ApplicationInsights, Az.Automation, Az.Backup, Az.Batch, Az.Billing, Az.Cdn, Az.CognitiveServices, Az.Compute, Az.Compute.ManagedService, Az.ContainerInstance, Az.ContainerRegistry, Az.DataFactory, Az.DataLakeAnalytics, Az.DataLakeStore, Az.DataMigration, Az.DeviceProvisioningServices, Az.DevSpaces, Az.Dns, Az.EventGrid, Az.EventHub, Az.FrontDoor, Az.HDInsight, Az.IotCentral, Az.IotHub, Az.KeyVault, Az.LogicApp, Az.MachineLearning, Az.ManagedServiceIdentity, Az.ManagementPartner, Az.Maps, Az.MarketplaceOrdering, Az.Media, Az.Monitor, Az.Network, Az.NotificationHubs, Az.OperationalInsights, Az.PolicyInsights, Az.PowerBIEmbedded, Az.RecoveryServices, Az.RedisCache, Az.Relay, Az.Reservations, Az.ResourceGraph, Az.Resources, Az.Scheduler, Az.Search, Az.Security, Az.ServiceBus, Az.ServiceFabric, Az.SignalR, Az.Sql, Az.Storage, Az.StorageSync, Az.StreamAnalytics, Az.Subscription, Az.TrafficManager, Az.Websites -ErrorAction SilentlyContinue; 
+}
+#End Azure PowerShell alias import
