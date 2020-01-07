@@ -208,6 +208,7 @@ function Get-AzCachedAccessToken()
 #endregion
 
 #region Variables
+$ErrorActionPreference = "Stop"
 if (!$env:AzureRmContextAutoSave)
 { $env:AzureRmContextAutoSave="true" }
 
