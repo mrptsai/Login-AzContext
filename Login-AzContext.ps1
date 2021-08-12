@@ -1,75 +1,72 @@
 <#
 .SYNOPSIS
      Save your Azure context with account and subscription information to a file
-
+ 
 .DESCRIPTION
     Sometimes life is about the little things, and one little thing that has been bothering me is
-    logging on to Azure in Powershell using Add-AzureRmAccount or Add-AzAccount. Every time you start Powershell,
+    logging on to Azure in Powershell using Connect-AzAccount. Every time you start Powershell,
     you need to log on again and that gets tired quickly, especially with accounts having mandatory 2FA.
-
+ 
     It gets even more complicated if you have multiple accounts to manage, for instance, one for testing
     and another for production. To top it off, you can start over when it turns out that your context
-    has expired, which you will only discover after you actually executed some AzureRm or Az commands.
-
+    has expired, which you will only discover after you actually executed some Az commands.
+ 
     The standard trick to make this easier is to save your Azure context with account and subscription information
-    to a file (Save-AzureRmContext or Save-AzContext), and to import this file whenever you need
-    (Import-AzureRmContext or Import-AzContext). But we can do a little bit better than that.
-
+    to a file (Save-AzContext or Save-AzContext), and to import this file whenever you need
+    (Import-AzContext or Import-AzContext). But we can do a little bit better than that.
+ 
 .PARAMETER ParentFolder
     A String value for the path to store the Context File (Required)
-
+ 
 .PARAMETER AccountName
     A String value for the name of account (Required)
-
-.PARAMETER Version
-    An Integer value for the major version of PowerShell.
-
+ 
 .PARAMETER TenantId
-    A String value for the guid of a Tenant
-
+    A String value for the guid of a Tenant (Required)
+ 
 .PARAMETER Subscription
     A String value for the name of a subscription
-
+ 
 .EXAMPLE
-
+ 
     Use a PowerShell profile to define a function doing the work.
-
+ 
     A profile gets loaded whenever you start PowerShell. There are multiple profiles, but the one we want
     is for CurrentUser - Allhosts.
-
+ 
     The function will load the Azure context from a file. If there is no such file, it should prompt me to log on.
-
+ 
     After logging on, the context should be tested for validity because the token may have expired.
-
+ 
     If the token is expired, prompt for logon again.
-
+ 
     If needed, save the new context to a file.
-
+ 
     To make this work, add this function to the powershell profile: from the Powershell ISE,
     type ise $profile.CurrentUserAllHosts or VSCode, type code $profile.CurrentUserAllHosts to edit the profile
     and copy/paste the function definition.
-
+ 
     Suppose I have two Azure accounts that I want to use here, called 'personal' and 'work'. For that I would add the
     following function definitions to the profile:
-
+ 
         function azure-work { New-AzureContext -ParentFolder "$env:HOME/PowerShell" -AccountName "work" -TenantId "9d2426e9-b74a-428e-9065-80f29e416c3e"}
-        function azure-customer { New-AzureContext -ParentFolder "$env:HOME/PowerShell" -AccountName "customer" -TenantId "8dbf3853-c31f-400d-b3fb-b54168b2603f" -Subscription "Staging"}
-        function azure-personal { New-AzureContext -ParentFolder "$env:HOME/PowerShell" -AccountName "personal"}
-
+        function azure-customer { New-AzureContext -ParentFolder "$env:HOME/PowerShell" -AccountName "customer" -TenantId "8dbf3853-c31f-400d-b3fb-b54168b2603f" -SubscriptionId "9877a694-1b15-4cdc-91d2-7bbfde6bf348"}
+        function azure-personal { New-AzureContext -ParentFolder "$env:HOME/PowerShell" -AccountName "personal" -TenantId "565aa719-38f8-4fa4-9275-94f2312fbb3c" -SubscriptionId "18e4b8ac-b35e-4acc-8f00-a040d99bad43"}
+ 
     To log on to 'personal', you simply execute azure-personal.  If this is a first logon, I get the usual Azure logon
     dialog and the resulting context gets saved.
-
+ 
     The next time, the existing file is loaded and the context tested for validity. From that point on you can
     switch between accounts whenever you need.
-
+ 
 .NOTES
-    Version:				1.01
-    Author:					Willem Kasdorp (original https://blogs.technet.microsoft.com/389thoughts/2018/02/11/logging-on-to-azure-for-your-everyday-job/)
+    Version:                1.3.0
+    Author:                 Willem Kasdorp (original https://blogs.technet.microsoft.com/389thoughts/2018/02/11/logging-on-to-azure-for-your-everyday-job/)
     Modified:               Paul Towler (Data#3)
-    Creation Date:			29/10/2018 16:00
-    Purpose/Change:			Initial script development
-    Required Modules:       AzureRm or Az
-    Dependencies:			none
+    Creation Date:          29/10/2018 16:00
+    Purpose/Change:         Initial script development
+    Required Modules:       Az
+    Dependencies:           none
     Limitations:            none
     Supported Platforms*:   Windows
                             *Currently not tested against other platforms
@@ -80,8 +77,10 @@
                             Updated PowerShell Core to enable AzureRm Alias and a New function to get Access Token from:
                             https://www.codeisahighway.com/how-to-easily-and-silently-obtain-accesstoken-bearer-from-an-existing-azure-powershell-session/
                             [26/08/2019 - 1.1.0 - Paul Towler]: Added TenantId parameter to cater for accounts that have access to many Tenants
+                            [12/08/2020 - 1.2.0 - Paul Towler]: Removed AzureRm (Time to move on)
+                            [12/08/2021 - 1.3.0 - Paul Towler]: BUGFIX: Issue with multiple Tenants and the same account name. Also issue using same Subscription Names. Changed to SubscriptionId.
 #>
-
+ 
 
 #region Functions
 function New-AzureContext
@@ -90,29 +89,27 @@ function New-AzureContext
     (
         [Parameter(Mandatory=$true)]
         [string] $ParentFolder,
-
+ 
         [Parameter(Mandatory=$true)]
         [string] $AccountName,
-
-        [Parameter(Mandatory=$false)]
-        [int] $Version = $psversiontable.PSVersion.Major,
-
-        [Parameter(Mandatory=$false)]
+ 
+        [Parameter(Mandatory=$true)]
         [string] $TenantId,
-
+ 
         [Parameter(Mandatory=$false)]
-        [string] $Subscription
+        [string] $SubscriptionId
     )
-
+ 
     $validlogon = $false
-    $contextfile = Join-Path $parentfolder "$accountname.json"
-    $contextEmpty = Join-Path $parentfolder "empty.json"
-    #if ($Version -ge 6)
-    #{  Enable-AzureRmAlias -Scope CurrentUser  }
+    $contextfile = Join-Path $ParentFolder "$AccountName.json"
+    $contextEmpty = Join-Path $ParentFolder "empty.json"
 
-	if (-not (Test-Path $parentfolder -ErrorAction SilentlyContinue))
-	{ New-Item -ItemType Directory -Path $parentfolder }
-
+    # Clean Up
+    Clear-AzContext -Force
+ 
+    if (-not (Test-Path $ParentFolder -ErrorAction SilentlyContinue))
+    { New-Item -ItemType Directory -Path $ParentFolder }
+ 
     if (-not (Test-Path $contextEmpty -ErrorAction SilentlyContinue))
     {
         '{
@@ -120,111 +117,126 @@ function New-AzureContext
             "EnvironmentTable": {},
             "Contexts": {},
             "ExtendedProperties": {}
-        }' | New-Item -Path $parentfolder -Name "empty.json"
+        }' | New-Item -Path $ParentFolder -Name "empty.json"
     }
-
+ 
     if (-not (Test-Path $contextfile -ErrorAction SilentlyContinue))
     {
-        Write-Host "`r`n No existing Azure Context file in:`t$($parentfolder)`n Please log in to Azure with account '$($accountname)'" -ForegroundColor Yellow
+        Write-Host "`r`n No existing Azure Context file in:`t$($ParentFolder)`n Please log in to Azure with account '$($AccountName)'" -ForegroundColor Yellow
     } else
     {
-        $context = (Import-AzureRmContext $contextEmpty).Context
-        Get-ChildItem $parentfolder -Filter "Azure*.json" | Remove-Item -Force
-
+        $context = (Import-AzContext $contextEmpty).Context
+        Get-ChildItem $ParentFolder -Filter "Azure*.json" | Remove-Item -Force
+ 
         # Importing existing context
-        $context = (Import-AzureRmContext $contextfile).Context
+        $context = (Import-AzContext $contextfile).Context
 
-        if ($Subscription -and $context.Subscription.Name -ne $Subscription)
+        if ($SubscriptionId -and $context.Subscription.Id -ne $SubscriptionId)
         {
-            $context = Set-AzureRmContext -SubscriptionName $Subscription
-            Save-AzureRmContext -Path $contextfile -Force
+            $context = Set-AzContext -Tenant $TenantId -SubscriptionName $SubscriptionId
+            Save-AzContext -Path $contextfile -Force
         }
-
+ 
         # check for token expiration by executing an Azure command that should always succeed.
-        Write-Host "`r`n Imported Azure context for account '$($accountname)', now checking for validity of the token....." -ForegroundColor Yellow
-
+        Write-Host "`r`n Imported Azure context for account '$($AccountName)', now checking for validity of the token....." -ForegroundColor Yellow
+ 
         # Validating
-        $validlogon = $null -ne (Get-AzureRmSubscription -SubscriptionName $context.Subscription.Name -ErrorAction SilentlyContinue)
-
+        $validlogon = $null -ne (Get-AzSubscription -TenantId $TenantId -SubscriptionId $context.Subscription.Id -ErrorAction SilentlyContinue)
+ 
         if ($validlogon)
         {
             Write-Host "`r`n Imported Azure context:`t$($contextfile)" -ForegroundColor Yellow
-            Write-Host " Current subscription is:`t$($context.Subscription.Name)`r`n" -ForegroundColor Yellow
+            Write-Host " Current TenantId is:`t$($context.Tenant.Id)`r`n" -ForegroundColor Yellow
+            Write-Host " Current Subscription Name is:`t$($context.Subscription.Name)`r`n" -ForegroundColor Yellow
+            Write-Host " Current Subscription Id is:`t$($context.Subscription.Id)`r`n" -ForegroundColor Yellow
         } else
         {
             # Getting Token
             $token = Get-AzCachedAccessToken
             if ($token)
-            {
-                $validlogon = $true
-            } else
-            {
-                Write-Host "`r`n Logon for account '$($accountname)' has expired, please log on again.`r`n" -ForegroundColor Yellow
-            }
+            {   $validlogon = $true } else
+            {   Write-Host "`r`n Logon for account '$($AccountName)' has expired, please log on again.`r`n" -ForegroundColor Yellow }
         }
     }
-
+ 
     if (-not $validlogon)
     {
-        $account = $null
-
-        if (!$TenantId -and !$Subscription)
-        { $account = Add-AzureRmAccount }
-
-        if ($TenantId -and !$Subscription)
-        { $account = Add-AzureRmAccount -TenantId $TenantId }
-
-        if ($TenantId -and $Subscription)
-        { $account = Add-AzureRmAccount -TenantId $TenantId -Subscription $Subscription }
-
-        if ($account)
+        $context = $null
+ 
+        if ($TenantId -and !$SubscriptionId)
+        { 
+            Connect-AzAccount -TenantId $TenantId
+            Save-AzContext -Path $contextfile -Force 
+        }
+ 
+        if ($TenantId -and $SubscriptionId)
+        { 
+            Connect-AzAccount -TenantId $TenantId -Subscription $SubscriptionId
+            Save-AzContext -Path $contextfile -Force 
+        }
+ 
+        $context = (Import-AzContext -Path $contextfile).Context
+ 
+        if ($context)
         {
-            Save-AzureRmContext -Path $contextfile -Force
-            Write-Host "`r`n SUCCESS! Logged on to Azure with '$($accountname)' successfully!" -ForegroundColor Green
+            Write-Host "`r`n SUCCESS! Logged on to Azure with '$($AccountName)' successfully!" -ForegroundColor Green
             Write-Host " Context saved to:`t$($contextfile)`r`n" -ForegroundColor Green
-
-            $context = (Import-AzureRmContext $contextfile).Context
         } else
         {
-            Write-Host "`r`n ERROR! Log on to Azure for account '$($accountname)' failed, please retry.`n" -ForegroundColor Red
+            Write-Host "`r`n ERROR! Log on to Azure for account '$($AccountName)' failed, please retry.`n" -ForegroundColor Red
         }
     }
 
-    if (Get-Module -ListAvailable AzureAD)
+    if ($Modules = Get-Module -ListAvailable AzureAD*)
     {
-        Write-Host "`r`n Logging into Azure AD...." -ForegroundColor Yellow
-        $AzureAD = Connect-AzureAD -TenantId $Context.Tenant.Id -AccountId $Context.Account.Id
-        Write-Host " SUCCESS! Logged on to AzureAD Domain '$($AzureAD.TenantDomain)' successfully!`n" -ForegroundColor Green
+        if ($IsMacOS -or $IsLinux)
+        {
+            #Nothing
+        } else
+        {
+            Switch ($Modules = Get-Module -ListAvailable AzureAD*)
+            {
+                {$PSItem.Name -contains "AzureADPreview"}
+                {$Module = "AzureADPreview"}
+    
+                Default
+                {$Module = "AzureAD"}
+            }
+
+            Write-Host "`r`n Logging into Azure AD...." -ForegroundColor Yellow
+            if ($psversiontable.PSVersion.Major -eq 5)
+            {   Import-Module -Name $Module -Force   } else
+            {   Import-Module -Name $Module -Force -UseWindowsPowerShell    }
+            Write-Host " Imported $($Module)" -ForegroundColor Gray
+    
+            $AzureAD = Connect-AzureAD -TenantId $Context.Tenant.Id -AccountId $Context.Account.Id
+            Write-Host " SUCCESS! Logged on to AzureAD Domain '$($AzureAD.TenantDomain)' successfully!`n" -ForegroundColor Green
+        }
     }
 }
-
+ 
 function Get-AzCachedAccessToken()
 {
-    $azProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-    if(-not $azProfile.Accounts.Count) {
-        Write-Error "Ensure you have logged in before calling this function."
+    $context = (Get-AzContext -ErrorAction SilentlyContinue | Select-Object -First 1)
+ 
+    if ([string]::IsNullOrEmpty($context)) {
+        $null = Connect-AzAccount
+        $context = (Get-AzContext | Select-Object -First 1)
     }
-
-    $currentAzureContext = Get-AzureRmContext
-    $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azProfile)
-    Write-Debug ("Getting access token for tenant" + $currentAzureContext.Tenant.TenantId)
     $ErrorActionPreference = "SilentlyContinue"
-    $token = $profileClient.AcquireAccessToken($currentAzureContext.Tenant.TenantId)
+    $token = [Microsoft.Azure.Commands.Common.Authentication.AzureSession]::Instance.AuthenticationFactory.Authenticate($context.Account, $context.Environment, $context.Tenant.Id, $null, "Never", $null, "74658136-14ec-4630-ad9b-26e160ff0fc6")
     $token.AccessToken
     $ErrorActionPreference = "Stop"
 }
 #endregion
-
+ 
 #region Variables
 $ErrorActionPreference = "Stop"
-if (!$env:AzureRmContextAutoSave)
-{ $env:AzureRmContextAutoSave="true" }
-
-switch ($psversiontable.PSVersion.Major)
-{
-    5 { $parentFolder = "$($home)/Windows PowerShell"  }
-    6 { $parentFolder = "$($home)/PowerShell"  }
-}
+$autoSave = Get-AzContextAutosaveSetting -Scope CurrentUser
+if ($autoSave.Mode -eq "Process")
+{ Enable-AzContextAutosave | Out-Null   }
+ 
+$parentFolder = "$($home)/PowerShell"
 #endregion
 
 #region Example Azure Logons
